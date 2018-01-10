@@ -21,4 +21,36 @@
          (~print-fn (str ~bs-str ", " ~expr-str ", "
                       ~iterations " runs, " elapsed# " msecs"))))))
 
-(benchmark [n 1000000] (dotimes [i n]) 10)
+(benchmark [n 1000] (dotimes [_ n]) 1000)
+
+#?(:clje
+   (do
+     (defn* loop-1
+       ([0])
+       ([n] (loop-1 (erlang/- n 1))))
+
+     (benchmark [n 1000] (loop-1 n) 1000)
+
+     (defn* loop-2
+       ([0])
+       ([n] (loop-2 (- n 1))))
+
+     (benchmark [n 1000] (loop-2 n) 1000)
+
+     (defn* loop-3
+       ([0])
+       ([n] (recur (- n 1))))
+
+     (benchmark [n 1000] (loop-3 n) 1000)
+
+     (defn* loop-4
+       ([0])
+       ([n] (recur (dec n))))
+
+     (benchmark [n 1000] (loop-4 n) 1000)
+
+     (defn* loop-5
+       ([0])
+       ([n] (recur (erlang/- n 1))))
+
+     (benchmark [n 1000] (loop-5 n) 1000)))
