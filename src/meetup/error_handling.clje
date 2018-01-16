@@ -1,0 +1,25 @@
+(ns meetup.error-handling)
+
+(import '[clojerl Error
+                  ExceptionInfo])
+
+(defn throw-catch [e]
+  (try
+    (throw e)
+    (catch Error e
+      (println "error" e))
+    (catch ExceptionInfo e
+      (println "ex-info" e))
+    (catch t e
+      (println "whatever" t e))))
+
+(throw-catch (Error. "foo"))
+;; error clojerl.Error: foo
+(throw-catch (ex-info "foo" {:bar "baz"}))
+;; ex-info clojerl.ExceptionInfo: foo {:bar baz}
+(throw-catch :foo-bar)
+;; whatever :error :foo-bar
+(throw-catch "foo bar")
+;; whatever :error foo bar
+(throw-catch 42)
+;; whatever :error 42

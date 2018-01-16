@@ -7,28 +7,24 @@
    (defn spawn [f & args]
      (erlang/spawn :clj_rt :apply #erl(f args))))
 
-(defn swap-inc [x]
-  #?(:clj
-     (Thread/sleep (rand-int 1000))
-     :clje
-     (timer/sleep (rand-int 1000)))
-  (swap! x inc))
+(defn sleep-swap! [x f]
+  (#?(:clj Thread/sleep :clje timer/sleep) (rand-int 1000))
+  (swap! x f))
+
+(println "Spawning" n "processes")
 
 (dotimes [i n]
   #?(:clj
-     (future (swap-inc x))
+     (future (sleep-swap! x inc))
      :clje
-     (spawn swap-inc x)))
+     (spawn sleep-swap! x inc)))
 
 (println "Finished spawning" n "processes")
 
 (loop []
   (when (< @x n)
     (println "Value:" @x)
-    #?(:clj
-       (Thread/sleep 100)
-       :clje
-       (timer/sleep 100))
+    (#?(:clj Thread/sleep :clje timer/sleep) 100)
     (recur)))
 
 (println "Final value:" @x)
