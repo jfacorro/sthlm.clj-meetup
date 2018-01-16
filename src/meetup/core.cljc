@@ -21,10 +21,26 @@
          (~print-fn (str ~bs-str ", " ~expr-str ", "
                       ~iterations " runs, " elapsed# " msecs"))))))
 
+(benchmark [n 1000000] (dotimes [_ n]) 1)
+
 (benchmark [n 1000] (dotimes [_ n]) 1000)
+
+(benchmark [] (+ 1 2) 1000000)
+
+(benchmark [] (+ 1 2 3) 1000000)
+
+(benchmark [] (+ 1000000000000000 2000000000000000000000000) 1000000)
+
+(benchmark [] (+ 1000000000000000 2000000000000000000000000 30000000000) 1000000)
+
+(benchmark [a (into [] (range 10))] (mapv + a a) 100000)
+
+(benchmark [a (into [] (range 10))] (reduce + a) 1000000)
 
 #?(:clje
    (do
+     (benchmark [a (lists/seq 1 10)] (reduce + a) 1000000)
+
      (defn* loop-1
        ([0])
        ([n] (loop-1 (erlang/- n 1))))

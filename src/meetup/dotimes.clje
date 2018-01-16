@@ -1,0 +1,87 @@
+(ns meetup.dotimes)
+
+(defn +' [a b]
+  (erlang/+ a b))
+
+(defn <' [a b]
+  (erlang/< a b))
+
+(defmacro dotimes-inc
+  {:added "1.0"}
+  [bindings & body]
+  (let [i (first bindings)
+        n (second bindings)]
+    `(let [n# ~n]
+       (loop [~i 0]
+         (when (< ~i n#)
+           ~@body
+           (recur (+ ~i 1)))))))
+
+(defmacro dotimes-+
+  {:added "1.0"}
+  [bindings & body]
+  (let [i (first bindings)
+        n (second bindings)]
+    `(let [n# ~n]
+       (loop [~i 0]
+         (when (< ~i n#)
+           ~@body
+           (recur (+ ~i 1)))))))
+
+(defmacro dotimes-erlang-+
+  {:added "1.0"}
+  [bindings & body]
+  (let [i (first bindings)
+        n (second bindings)]
+    `(let [n# ~n]
+       (loop [~i 0]
+         (when (erlang/< ~i n#)
+           ~@body
+           (recur (erlang/+ ~i 1)))))))
+
+(defmacro dotimes-local-+
+  {:added "1.0"}
+  [bindings & body]
+  (let [i (first bindings)
+        n (second bindings)]
+    `(let [n# ~n]
+       (loop [~i 0]
+         (when (<' ~i n#)
+           ~@body
+           (recur (+' ~i 1)))))))
+
+(defn* dotimes-fn*
+  ([0 _])
+  ([n body-fn]
+   (body-fn)
+   (recur (erlang/- n 1) body-fn)))
+
+(defmacro dotimes-fn
+  {:added "1.0"}
+  [bindings & body]
+  (let [i (first bindings)
+        n (second bindings)]
+    `(let [n# ~n]
+      ((fn*
+        ([0])
+        ([i#]
+         (let [~i (erlang/- n# i#)]
+           ~@body)
+         (recur (erlang/- i# 1)))) n#))))
+
+(defmacro dotimes-fn
+  {:added "1.0"}
+  [bindings & body]
+  (let [i (first bindings)
+        n (second bindings)]
+    `(dotimes-fn* ~n (fn* [] ~@body))))
+
+(defn -main []
+  (let [n     1000
+        times 1000]
+    (simple-benchmark [] (dotimes-inc [i n]) times)
+    (simple-benchmark [] (dotimes-+ [i n]) times)
+    (simple-benchmark [] (dotimes-erlang-+ [i n]) times)
+    (simple-benchmark [] (dotimes-local-+ [i n]) times)
+    (simple-benchmark [] (dotimes-fn [i n]) times)
+    ))
