@@ -33,13 +33,13 @@
 
 (benchmark [] (+ 1000000000000000 2000000000000000000000000 30000000000) 1000000)
 
-(benchmark [a (into [] (range 10))] (mapv + a a) 100000)
+(benchmark [a (into [] (range 1000))] (mapv + a a) 1000)
 
-(benchmark [a (into [] (range 10))] (reduce + a) 1000000)
+(benchmark [a (into [] (range 1000))] (reduce + a) 1000)
 
 #?(:clje
    (do
-     (benchmark [a (lists/seq 1 10)] (reduce + a) 1000000)
+     (benchmark [a (lists/seq 1 1000)] (reduce + a) 1000)
 
      (defn* loop-1
        ([0])
