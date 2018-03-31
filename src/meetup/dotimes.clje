@@ -15,7 +15,7 @@
        (loop [~i 0]
          (when (< ~i n#)
            ~@body
-           (recur (+ ~i 1)))))))
+           (recur (inc ~i)))))))
 
 (defmacro dotimes-+
   {:added "1.0"}
@@ -49,6 +49,17 @@
          (when (<' ~i n#)
            ~@body
            (recur (+' ~i 1)))))))
+
+(defmacro dotimes-local-<
+  {:added "1.0"}
+  [bindings & body]
+  (let [i (first bindings)
+        n (second bindings)]
+    `(let [n# ~n]
+       (loop [~i 0]
+         (when (<' ~i n#)
+           ~@body
+           (recur (+ ~i 1)))))))
 
 (defn* dotimes-fn*
   ([0 _])
@@ -84,4 +95,5 @@
     (simple-benchmark [] (dotimes-erlang-+ [i n]) times)
     (simple-benchmark [] (dotimes-local-+ [i n]) times)
     (simple-benchmark [] (dotimes-fn [i n]) times)
+    (simple-benchmark [] (dotimes [i n]) times)
     ))

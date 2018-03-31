@@ -1,0 +1,15 @@
+(ns meetup.dotimes-call
+	(:require [meetup.dotimes :refer [dotimes-local-+ dotimes-local-<]]))
+
+(defn f []
+  (dotimes-local-+ [x 10000000] (identity x)))
+
+(defn g []
+  (dotimes [x 10000000] (identity x)))
+
+(defn h []
+  (dotimes-local-< [x 10000000] (identity x)))
+
+(simple-benchmark [] (f) 1)
+(simple-benchmark [] (g) 1)
+(simple-benchmark [] (h) 1)
